@@ -1,7 +1,7 @@
 from enum import Enum
 
 class TextType(Enum):
-	TEXT = "Text"
+	TEXT = "text"
 	BOLD = "bold"
 	ITALIC = "italic"
 	CODE = "code"

@@ -34,6 +34,10 @@ def text_to_textnodes(text):
 			)
 		)
 
+def markdown_to_blocks(markdown):
+	return list(filter(lambda b: len(b) > 0, map(lambda b: b.strip(), markdown.split("\n\n"))))
+
+	
 def print_nodes(text, nodes):
 	print(text)
 	for i in range(len(nodes)):

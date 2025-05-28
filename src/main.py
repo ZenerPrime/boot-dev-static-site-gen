@@ -1,3 +1,5 @@
+import os
+import shutil
 
 from textnode import TextNode, TextType
 from leafnode import LeafNode
@@ -86,7 +88,36 @@ def print_nodes(text, nodes):
 	for i in range(len(nodes)):
 		print(f"Node {i}\n\t{nodes[i]}")
 
+def copy_tree(source_dir, destination_dir):	
+	print(f"checking {destination_dir}")
+	if os.path.exists(destination_dir):
+		print(f"{destination_dir} exists. so deleting it")
+		shutil.rmtree(destination_dir, ignore_errors=True)
+
+	print(f"making {destination_dir}")
+	os.mkdir(destination_dir)
+	
+	print(f"checking {source_dir}")
+	if not os.path.exists(source_dir):			
+		print(f"{source_dir} doesn't exists. so returning")
+		return
+
+	print(f"enumerating {source_dir}")
+	for entry in os.listdir(source_dir):
+		print(f"found {entry}")
+		entry_source = os.path.join(source_dir, entry)
+		entry_dest = os.path.join(destination_dir, entry)
+		print(f"entry source {entry_source}")
+		print(f"entry destination {entry_dest}")
+		if (os.path.isfile(entry_source)):
+			print(f"{entry} is a file and will be copied")
+			shutil.copy(entry_source, entry_dest)
+		else:
+			print(f"{entry} is a directory and will have th tree copied")
+			copy_tree(entry_source, entry_dest)
+
+
 def main():
-	pass
+	copy_tree("./static", "./public")
 
 main()

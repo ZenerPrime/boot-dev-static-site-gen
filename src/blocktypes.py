@@ -37,7 +37,9 @@ def is_unordered_list_block(block):
 	return re.fullmatch(r"(?:- .+\n?)+", block) is not None
 
 def is_ordered_list_block(block):
-    return is_ordered_list_in_sequence(list(map(lambda l: l.split(". ", 1)[0], block.split("\n"))))
+	if re.fullmatch(r"(?:\d+. .+\n?)+", block) is None:
+		return False
+	return is_ordered_list_in_sequence(list(map(lambda l: l.split(". ", 1)[0], block.split("\n"))))
 
 def is_ordered_list_in_sequence(numbers):
     if not numbers:

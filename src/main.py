@@ -1,7 +1,9 @@
 
 from textnode import TextNode, TextType
 from leafnode import LeafNode
+from parentnode import ParentNode
 from splitter import split_nodes_delimiter, split_nodes_image, split_nodes_link
+from blocktypes import BlockTypes, block_to_block_type
 
 def text_node_to_html_node(text_node):
 	if (not isinstance(text_node, TextNode)):
@@ -37,6 +39,47 @@ def text_to_textnodes(text):
 def markdown_to_blocks(markdown):
 	return list(filter(lambda b: len(b) > 0, map(lambda b: b.strip(), markdown.split("\n\n"))))
 
+def markdown_to_html_node(markdown):
+	blocks = markdown_to_blocks(markdown)
+	block_nodes = []
+	for block in blocks:
+		block_type = block_to_block_type(block)
+		block_nodes.append(block_to_html_node(block_type, block))
+
+	return ParentNode(tag="div", children= block_nodes)
+
+def block_to_html_node(block_type, block):
+	match block_type:
+		case BlockTypes.CODE:
+			children = [text_node_to_html_node(TextNode(block.strip("`"), TextType.CODE))]
+			return ParentNode("pre", children=children)
+		case BlockTypes.HEADING:
+			parts = block.split(" ", 1)
+			text = parts[1]			
+			return ParentNode(f"h{len(parts[0])}", children=text_to_children(text))
+		case BlockTypes.QUOTE:
+			text = "\n".join(map(lambda l: l.lstrip("> "), block.split("\n")))
+			return ParentNode("blockquote", children=text_to_children(text))
+		case BlockTypes.PARAGRAPH:
+			return ParentNode("p", children=text_to_children(" ".join(block.split("\n"))))
+		case BlockTypes.UNORDERED_LIST:
+			lines = map(lambda l: l.lstrip("- "), block.split("\n"))
+			line_items = []
+			for line in lines:
+				line_items.append(ParentNode("li", children=text_to_children(line)))
+			return ParentNode("ul", children=line_items)
+		case BlockTypes.ORDERED_LIST:
+			lines = map(lambda l: l.split(" ", 1)[1], block.split("\n"))
+			line_items = []
+			for line in lines:
+				line_items.append(ParentNode("li", children=text_to_children(line)))
+			return ParentNode("ol", children=line_items)		
+
+def text_to_children(text):
+	children = []
+	for text_node in text_to_textnodes(text):
+		children.append(text_node_to_html_node(text_node))
+	return children
 	
 def print_nodes(text, nodes):
 	print(text)

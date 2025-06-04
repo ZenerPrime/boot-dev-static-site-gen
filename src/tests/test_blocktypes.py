@@ -1,5 +1,11 @@
 import unittest
 
+import sys, os
+child_dir = os.path.dirname(__file__)
+parent_dir = os.path.abspath(os.path.join(child_dir, '..'))
+sys.path.append(parent_dir)
+
+
 from blocktypes import BlockTypes, block_to_block_type
 
 

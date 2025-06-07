@@ -93,14 +93,14 @@ def copy_tree(source_dir, destination_dir):
 	if os.path.exists(destination_dir):
 		print(f"{destination_dir} exists. so deleting it")
 		shutil.rmtree(destination_dir, ignore_errors=True)
-
-	print(f"making {destination_dir}")
-	os.mkdir(destination_dir)
 	
 	print(f"checking {source_dir}")
 	if not os.path.exists(source_dir):			
 		print(f"{source_dir} doesn't exists. so returning")
 		return
+	
+	print(f"making {destination_dir}")
+	os.mkdir(destination_dir)
 
 	print(f"enumerating {source_dir}")
 	for entry in os.listdir(source_dir):
@@ -115,6 +115,17 @@ def copy_tree(source_dir, destination_dir):
 		else:
 			print(f"{entry} is a directory and will have th tree copied")
 			copy_tree(entry_source, entry_dest)
+
+def copy_content(dir_path_content, template_path, dir_path_dest):
+	for entry in os.listdir(dir_path_content):
+		entry_path = os.path.join(dir_path_content, entry)
+		dest_path = os.path.join(dir_path_dest, entry)
+		if os.path.isfile(entry_path):
+			if entry_path.endswith(".md"):
+				dest_path = dest_path.rstrip(".md") + ".html"
+				generate_page(entry_path, template_path, dest_path)
+		else:
+			copy_content(entry_path, template_path, dest_path)
 
 def extract_title(markdown):
 	title = next(filter(lambda l: l.startswith("# "), markdown.split("\n")), None)
@@ -136,7 +147,7 @@ def generate_page(from_path, template_path, dest_path):
 
 
 def main():
-	copy_tree("./static", "./public")
-	generate_page("./content/index.md", "./template.html", "public/index.html")
+	copy_tree("static", "public")
+	copy_content("content", "template.html", "public")
 
 main()

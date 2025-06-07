@@ -31,7 +31,7 @@ def is_code_block(block):
 	return re.fullmatch(r"`{3}(?:.*\n*)*`{3}", block) is not None
 
 def is_quote_block(block):
-	return re.fullmatch(r"(?:> .+\n?)+", block) is not None
+	return re.fullmatch(r"(?:>\s.*\n?)+", block) is not None
 
 def is_unordered_list_block(block):
 	return re.fullmatch(r"(?:- .+\n?)+", block) is not None

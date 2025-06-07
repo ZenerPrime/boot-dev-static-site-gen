@@ -1,6 +1,6 @@
 import unittest
 
-from main import text_node_to_html_node, text_to_textnodes, markdown_to_blocks, markdown_to_html_node, print_nodes
+from main import text_node_to_html_node, text_to_textnodes, markdown_to_blocks, markdown_to_html_node, extract_title, print_nodes
 from textnode import TextNode, TextType
 
 class TestMain(unittest.TestCase):
@@ -244,3 +244,77 @@ the **same** even with inline stuff
             html,
             "<div><h3>Heading!</h3><blockquote>One!! HA! HA! HA!\nTWO!!!!! HA! HA! HA!\nTHREE!!!!!  HA! HA! HA!</blockquote></div>",
         )
+
+    def test_extract_header(self):
+        md = """
+# Tolkien Fan Club
+
+![JRR Tolkien sitting](/images/tolkien.png)
+
+Here's the deal, **I like Tolkien**.
+
+> "I am in fact a Hobbit in all but size."
+>
+> -- J.R.R. Tolkien
+
+## Blog posts
+
+- [Why Glorfindel is More Impressive than Legolas](/blog/glorfindel)
+- [Why Tom Bombadil Was a Mistake](/blog/tom)
+
+## My favorite characters (in order)
+
+1. Gandalf
+2. Bilbo
+3. Sam
+4. Glorfindel
+
+Here's what `elflang` looks like (the perfect coding language):
+
+```
+func main(){
+    fmt.Println("Aiya, Ambar!")
+}
+```
+"""
+        title = extract_title(md)
+
+        self.assertEqual(
+            title,
+            "Tolkien Fan Club")
+        
+    def test_extract_header_with_no_header(self):
+        md = """
+## Tolkien Fan Club
+
+![JRR Tolkien sitting](/images/tolkien.png)
+
+Here's the deal, **I like Tolkien**.
+
+> "I am in fact a Hobbit in all but size."
+>
+> -- J.R.R. Tolkien
+
+## Blog posts
+
+- [Why Glorfindel is More Impressive than Legolas](/blog/glorfindel)
+- [Why Tom Bombadil Was a Mistake](/blog/tom)
+
+## My favorite characters (in order)
+
+1. Gandalf
+2. Bilbo
+3. Sam
+4. Glorfindel
+
+Here's what `elflang` looks like (the perfect coding language):
+
+```
+func main(){
+    fmt.Println("Aiya, Ambar!")
+}
+```
+"""
+        title = extract_title(md)
+
+        self.assertEqual(title, None)

@@ -116,8 +116,27 @@ def copy_tree(source_dir, destination_dir):
 			print(f"{entry} is a directory and will have th tree copied")
 			copy_tree(entry_source, entry_dest)
 
+def extract_title(markdown):
+	title = next(filter(lambda l: l.startswith("# "), markdown.split("\n")), None)
+	return None if title == None else title.lstrip("# ")
+
+def generate_page(from_path, template_path, dest_path):
+	print(f"Generating page from {from_path} to {dest_path} using {template_path}")
+	with open(from_path) as from_file:
+		markdown = from_file.read()
+	with open(template_path) as template_file:
+		template = template_file.read()
+	title = extract_title(markdown)
+	content = markdown_to_html_node(markdown).to_html()
+	output = template.replace("{{ Title }}", title).replace("{{ Content }}", content)
+	os.makedirs(os.path.dirname(dest_path), exist_ok=True)
+	with open(dest_path, mode="w+t") as dest_file:
+		dest_file.write(output)
+
+
 
 def main():
 	copy_tree("./static", "./public")
+	generate_page("./content/index.md", "./template.html", "public/index.html")
 
 main()

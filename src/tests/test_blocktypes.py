@@ -35,6 +35,11 @@ class TestBlockTypes(unittest.TestCase):
         block = "> this is a quote\n> continued quote"
         parsed_block_type = block_to_block_type(block)
         self.assertEqual(BlockTypes.QUOTE, parsed_block_type)
+    
+    def test_block_to_block_type_quote_multiline_with_empty_line(self):
+        block = "> this is a quote\n>\n> continued quote"
+        parsed_block_type = block_to_block_type(block)
+        self.assertEqual(BlockTypes.QUOTE, parsed_block_type)
 
     def test_block_to_block_type_unordered_list(self):
         block = "- this is a quote"

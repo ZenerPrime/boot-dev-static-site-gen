@@ -116,7 +116,7 @@ def copy_tree(source_dir, destination_dir):
 			print(f"{entry} is a directory and will have th tree copied")
 			copy_tree(entry_source, entry_dest)
 
-def copy_content(dir_path_content, template_path, dir_path_dest):
+def generate_pages_recursive(dir_path_content, template_path, dir_path_dest):
 	for entry in os.listdir(dir_path_content):
 		entry_path = os.path.join(dir_path_content, entry)
 		dest_path = os.path.join(dir_path_dest, entry)
@@ -125,7 +125,7 @@ def copy_content(dir_path_content, template_path, dir_path_dest):
 				dest_path = dest_path.rstrip(".md") + ".html"
 				generate_page(entry_path, template_path, dest_path)
 		else:
-			copy_content(entry_path, template_path, dest_path)
+			generate_pages_recursive(entry_path, template_path, dest_path)
 
 def extract_title(markdown):
 	title = next(filter(lambda l: l.startswith("# "), markdown.split("\n")), None)
@@ -148,6 +148,6 @@ def generate_page(from_path, template_path, dest_path):
 
 def main():
 	copy_tree("static", "public")
-	copy_content("content", "template.html", "public")
+	generate_pages_recursive("content", "template.html", "public")
 
 main()

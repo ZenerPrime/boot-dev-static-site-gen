@@ -1,4 +1,4 @@
-import os
+import os, sys
 import shutil
 
 from textnode import TextNode, TextType
@@ -116,22 +116,22 @@ def copy_tree(source_dir, destination_dir):
 			print(f"{entry} is a directory and will have th tree copied")
 			copy_tree(entry_source, entry_dest)
 
-def generate_pages_recursive(dir_path_content, template_path, dir_path_dest):
+def generate_pages_recursive(dir_path_content, template_path, dir_path_dest, basepath):
 	for entry in os.listdir(dir_path_content):
 		entry_path = os.path.join(dir_path_content, entry)
 		dest_path = os.path.join(dir_path_dest, entry)
 		if os.path.isfile(entry_path):
 			if entry_path.endswith(".md"):
 				dest_path = dest_path.rstrip(".md") + ".html"
-				generate_page(entry_path, template_path, dest_path)
+				generate_page(entry_path, template_path, dest_path, basepath)
 		else:
-			generate_pages_recursive(entry_path, template_path, dest_path)
+			generate_pages_recursive(entry_path, template_path, dest_path, basepath)
 
 def extract_title(markdown):
 	title = next(filter(lambda l: l.startswith("# "), markdown.split("\n")), None)
 	return None if title == None else title.lstrip("# ")
 
-def generate_page(from_path, template_path, dest_path):
+def generate_page(from_path, template_path, dest_path, basepath):
 	print(f"Generating page from {from_path} to {dest_path} using {template_path}")
 	with open(from_path) as from_file:
 		markdown = from_file.read()
@@ -140,14 +140,22 @@ def generate_page(from_path, template_path, dest_path):
 	title = extract_title(markdown)
 	content = markdown_to_html_node(markdown).to_html()
 	output = template.replace("{{ Title }}", title).replace("{{ Content }}", content)
+	if len(basepath) > 0:
+		output = output.replace('href="/', f'href="{basepath}').replace('src="/', f'src="{basepath}')
 	os.makedirs(os.path.dirname(dest_path), exist_ok=True)
 	with open(dest_path, mode="w+t") as dest_file:
 		dest_file.write(output)
 
-
-
 def main():
-	copy_tree("static", "public")
-	generate_pages_recursive("content", "template.html", "public")
+	basepath = "/"
+	if len(sys.argv) > 1:
+		basepath = f"/{sys.argv[1].lstrip('/').rstrip('/')}/"
+	print(f"basepath='{basepath}'")
+	target = "public"
+	if len(sys.argv) > 2:
+		target = sys.argv[2]
+	print(f"target='{target}'")
+	copy_tree("static", target)
+	generate_pages_recursive("content", "template.html", target, basepath)
 
 main()
